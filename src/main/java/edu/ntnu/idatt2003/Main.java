@@ -1,42 +1,42 @@
 package edu.ntnu.idatt2003;
 
+import edu.ntnu.idatt2003.view.Components;
+import java.util.List;
 import javafx.application.Application;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 public class Main extends Application {
 
+  Components components;
+  PokerManager pokerManager;
+
+  private final static String backgroundColor = "#014f26";
+  private final static String boxColor = "#CFCFCF";
+
+
+  public Main() {
+    components = new Components();
+    pokerManager = new PokerManager();
+  }
+
   @Override
   public void start(Stage primaryStage) {
-    AnchorPane rootNode = new AnchorPane();
-    rootNode.setBackground(new Background(new BackgroundFill(Color.web("32620B"), CornerRadii.EMPTY, Insets.EMPTY)));
+    AnchorPane rootNode = components.createAnchorPane(backgroundColor);
 
-    Graphics graphics = new Graphics();
-
-    DropShadow dropShadow = new DropShadow();
-    dropShadow.setRadius(10.0);
-    dropShadow.setOffsetX(3.0);
-    dropShadow.setOffsetY(3.0);
-    dropShadow.setColor(Color.web("#404040"));
 
     StackPane pokerPane = new StackPane();
     pokerPane.setPrefSize(800, 246);
 
-    Label pokerLabel = graphics.createTitle("Poker", 60, "FFFFFF");
+    Label pokerLabel = components.createTitle("Poker", 60, "#FFFFFF");
     pokerLabel.setTranslateY(-80);
     pokerPane.getChildren().add(pokerLabel);
 
@@ -48,41 +48,70 @@ public class Main extends Application {
     buttons.setSpacing(10);
     buttons.setTranslateY(-100);
 
-    Button dealButton = new Button("Deal Hand");
-    Button checkButton = new Button("Check Hand");
+    Button dealButton = components.createButton("Deal Hand");
+    Button checkButton = components.createButton("Check Hand");
 
     buttons.getChildren().add(dealButton);
     buttons.getChildren().add(checkButton);
 
 
+    StackPane playerCardsContainer = new StackPane();
+    playerCardsContainer.setMaxSize(424, 354);
+    playerCardsContainer.setMinSize(424, 354);
+
+    Rectangle cardBox = components.createBox(424, 354, boxColor);
+    playerCardsContainer.getChildren().add(cardBox);
+
     HBox playerCards = new HBox();
     playerCards.setMaxSize(424, 354);
     playerCards.setMinSize(424, 354);
-
-    Rectangle cardBox = graphics.createBox(424, 354, "CFCFCF");
-    playerCards.getChildren().add(cardBox);
+    playerCards.setSpacing(20);
+    playerCardsContainer.getChildren().add(playerCards);
 
 
     StackPane result = new StackPane();
     result.setMaxSize(235, 354);
     result.setMinSize(235, 354);
 
-    StackPane resultContainer = new StackPane();
-    resultContainer.setMaxSize(190, 283);
-    resultContainer.setMinSize(190, 283);
+    VBox resultContainer = new VBox();
+    resultContainer.setMaxSize(140, 243);
+    resultContainer.setMinSize(140, 243);
+    resultContainer.setSpacing(10);
 
-    Rectangle resultBox = graphics.createBox(190, 283, "CFCFCF");
-    StackPane.setAlignment(resultBox, Pos.CENTER);
-    resultContainer.getChildren().add(resultBox);
+    Rectangle resultBox = components.createBox(190, 283, boxColor);
+    result.getChildren().add(resultBox);
 
     result.getChildren().add(resultContainer);
 
-    VBox results = new VBox();
-    results.setMaxSize(150, 46);
-    results.setMinSize(150, 46);
-    results.setAlignment(Pos.CENTER);
-    results.setSpacing(5);
-    results.setTranslateY(-100);
+    dealButton.setOnAction(e -> {
+      System.out.println("Deal Hand");
+      playerCards.getChildren().clear();
+      List<String> hand = pokerManager.dealHand();
+      for (String card : hand) {
+        playerCards.getChildren().add(components.createLabel(card, 12, "#000000"));
+      }
+    });
+
+    checkButton.setOnAction(e -> {
+      System.out.println("Check Hand");
+      resultContainer.getChildren().clear();
+      Label sumOfFacesLabel = components.createLabel("Sum of faces:", 12, "#000000");
+      Label sumOfFaces = components.createLabel(pokerManager.sumOfFaces(), 12, "#000000");
+      Label cardsOfHeartsLabel = components.createLabel("Cards of hearts:", 12, "#000000");
+      Label cardsOfHearts = components.createLabel(pokerManager.getHearts(), 12, "#000000");
+      Label flushLabel = components.createLabel("Flush:", 12, "#000000");
+      Label flush = components.createLabel(pokerManager.sameSuit(), 12, "#000000");
+      Label queenOfSpadesLabel = components.createLabel("Queen of spades:", 12, "#000000");
+      Label queenOfSpades = components.createLabel(pokerManager.queenOfSpades(), 12, "#000000");
+      resultContainer.getChildren().add(sumOfFacesLabel);
+      resultContainer.getChildren().add(sumOfFaces);
+      resultContainer.getChildren().add(cardsOfHeartsLabel);
+      resultContainer.getChildren().add(cardsOfHearts);
+      resultContainer.getChildren().add(flushLabel);
+      resultContainer.getChildren().add(flush);
+      resultContainer.getChildren().add(queenOfSpadesLabel);
+      resultContainer.getChildren().add(queenOfSpades);
+    });
 
 
     rootNode.getChildren().add(pokerPane);
@@ -92,9 +121,9 @@ public class Main extends Application {
     AnchorPane.setLeftAnchor(buttons, 0.0);
     AnchorPane.setBottomAnchor(buttons, (rootNode.getPrefHeight() - buttons.getPrefHeight()) / 2);
 
-    rootNode.getChildren().add(playerCards);
-    AnchorPane.setLeftAnchor(playerCards, buttons.getMaxWidth());
-    AnchorPane.setBottomAnchor(playerCards, (rootNode.getPrefHeight() - playerCards.getPrefHeight()) / 2);
+    rootNode.getChildren().add(playerCardsContainer);
+    AnchorPane.setLeftAnchor(playerCardsContainer, buttons.getMaxWidth());
+    AnchorPane.setBottomAnchor(playerCardsContainer, (rootNode.getPrefHeight() - playerCardsContainer.getPrefHeight()) / 2);
 
     rootNode.getChildren().add(result);
     AnchorPane.setRightAnchor(result, 0.0);
@@ -111,5 +140,6 @@ public class Main extends Application {
   }
 
   public static void main(String[] args) {
+    launch(args);
   }
 }
