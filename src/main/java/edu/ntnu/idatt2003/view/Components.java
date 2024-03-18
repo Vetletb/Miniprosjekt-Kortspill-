@@ -1,16 +1,23 @@
-package edu.ntnu.idatt2003;
+package edu.ntnu.idatt2003.view;
 
+import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
-public class Graphics {
+public class Components {
   private final DropShadow dropShadow;
+  private final static int borderRadius = 15;
 
-  public Graphics() {
+  public Components() {
     dropShadow = new DropShadow();
     dropShadow.setRadius(10.0);
     dropShadow.setOffsetX(3.0);
@@ -21,8 +28,8 @@ public class Graphics {
   public Rectangle createBox(int width, int height, String color) {
     Rectangle box = new Rectangle(width, height);
     box.setFill(Color.web(color));
-    box.setArcHeight(5);
-    box.setArcWidth(5);
+    box.setArcHeight(borderRadius);
+    box.setArcWidth(borderRadius);
     box.setEffect(dropShadow);
     return box;
   }
@@ -39,5 +46,18 @@ public class Graphics {
     label.setFont(Font.font(null, FontWeight.BLACK, fontSize));
     label.setEffect(dropShadow);
     return label;
+  }
+
+  public Button createButton(String text) {
+    Button button = new Button(text);
+    button.setEffect(dropShadow);
+    return button;
+  }
+
+  public AnchorPane createAnchorPane(String backgroundColor) {
+    AnchorPane anchorPane = new AnchorPane();
+    anchorPane.setBackground(new Background(
+      new BackgroundFill(Color.web(backgroundColor), CornerRadii.EMPTY, Insets.EMPTY)));
+    return anchorPane;
   }
 }
